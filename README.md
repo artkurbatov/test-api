@@ -1,2 +1,2 @@
 # Book store API
-Using gin
+Using go and gin package
