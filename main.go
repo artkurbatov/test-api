@@ -52,7 +52,7 @@ func getBookById(id string) (*book, error) {
 			return &books[i], nil
 		}
 	}
-	return nil, errors.New("Book not found")
+	return nil, errors.New("book not found")
 }
 
 func checkoutBook(c *gin.Context) {
