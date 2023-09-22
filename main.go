@@ -96,6 +96,38 @@ func returnBook(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, book)
 }
 
+func swapBooks(c *gin.Context) {
+	returnID, returnOK := c.GetQuery("id")
+	checkoutID, chechoutOK := c.GetQuery("to")
+	if !returnOK || !chechoutOK {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "missing parametrs"})
+		return
+	}
+
+	returnBook, err := getBookById(returnID)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "book to return not found"})
+		return
+	}
+
+	checkoutBook, err := getBookById(checkoutID)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "book to checkout not found"})
+		return
+	}
+
+	if checkoutBook.Quantity <= 0 {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "book is out of stock"})
+		return
+	}
+
+	checkoutBook.Quantity--
+	returnBook.Quantity++
+	c.IndentedJSON(http.StatusOK, checkoutBook)
+}
+
 func main() {
 	rounter := gin.Default()
 	rounter.GET("/books", getBooks)
@@ -103,5 +135,6 @@ func main() {
 	rounter.POST("/books", createBook)
 	rounter.PATCH("/checkout", checkoutBook)
 	rounter.PATCH("/return", returnBook)
+	rounter.PATCH("/swap", swapBooks)
 	rounter.Run("localhost:8080")
 }
